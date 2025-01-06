@@ -1,12 +1,9 @@
-import pprint
-
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     SentenceTransformersTokenTextSplitter,
 )
 from utils import word_wrap, pretty_print
 from pypdf import PdfReader
-import groq
 from dotenv import load_dotenv
 import os
 
@@ -15,21 +12,18 @@ from chromadb.utils.embedding_functions.sentence_transformer_embedding_function 
     SentenceTransformerEmbeddingFunction,
 )
 
-
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-
-reader = PdfReader("data\microsoft-annual-report.pdf")
+print("Reading PDF file...")
+reader = PdfReader("data\FYP_Approved_Form.pdf")
 pdf_text = [p.extract_text().strip() for p in reader.pages]
-
 
 # Filter out empty strings
 pdf_text = [text for text in pdf_text if text]
-
 # print(word_wrap(pdf_text[0]))
 
-# Split text into chunks
+print("Splitting text into chunks...")
 splitter = RecursiveCharacterTextSplitter(
     separators=["\n\n", "\n", ". ", ", ", " ", ""], 
     chunk_size=1000, 
@@ -37,10 +31,10 @@ splitter = RecursiveCharacterTextSplitter(
 )
 split_text = splitter.split_text("\n".join(pdf_text))
 
-pretty_print("Split Text", word_wrap(split_text[0]))
+# pretty_print("Split Text", word_wrap(split_text[0]))
 pretty_print("Total Chunks", len(split_text))
 
-
+print("Splitting chunks into tokens...")
 token_splitter = SentenceTransformersTokenTextSplitter(
     chunk_overlap=0, tokens_per_chunk=256
 )
@@ -54,11 +48,12 @@ for text in split_text:
 embedding_function = SentenceTransformerEmbeddingFunction()
 # pretty_print("Embedding Function", embedding_function(splitted_tokens[10]))
 
-
+print("Creating Chroma Collection...")
+COLLECTION = 'FYP'
 chroma = chromadb.Client()
-chroma_collection = chroma.create_collection("report", embedding_function=embedding_function)
+chroma_collection = chroma.create_collection(COLLECTION, embedding_function=embedding_function)
 
-
+print("Adding documents to the collection...")
 # Extract embeddings from the splitted tokens
 ids = [str(i) for i in range(len(splitted_tokens))]
 chroma_collection.add(ids=ids, documents=splitted_tokens)
@@ -66,9 +61,10 @@ count = chroma_collection.count()
 
 pretty_print("Total Documents", count)
 
-QUERY = "what was the total revenue for the year?"
+QUERY = "what are the expected results of the project?"
 
-results = chroma_collection.query(query_texts=[QUERY], n_results=3)
+print("Querying the collection...")
+results = chroma_collection.query(query_texts=[QUERY], n_results=2)
 retrived_docs = results["documents"][0]
 
 for document in retrived_docs:
