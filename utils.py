@@ -61,3 +61,15 @@ def load_chroma(filename, collection_name, embedding_function):
         
         
     return collection
+
+
+
+def pretty_print(message="", text=""):
+    """
+    Pretty prints the given text with an optional message.
+    """
+    print("-" * 50)
+    if message:
+        print(f"{message}:")
+    print(text)
+    print("-" * 50)
