@@ -19,8 +19,12 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 groq_client = groq.Client(api_key=API_KEY)
 
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(base_dir, "..", "data", "FYP_Approved_Form.pdf")
+
 print("Reading PDF file...")
-reader = PdfReader("data\FYP_Approved_Form.pdf")
+reader = PdfReader(file_path)
 pdf_text = [p.extract_text().strip() for p in reader.pages]
 
 # Filter out empty strings
@@ -101,11 +105,9 @@ print("Querying the collection with expanded query...")
 results = chroma_collection.query(query_texts=[expanded_query], n_results=3)
 retrived_docs = results["documents"][0]
 
-print("Retrieved Documents:",retrived_docs)
-
-for document in retrived_docs:
-    print(word_wrap(document))
-    print("\n")
+# for document in retrived_docs:
+#     print(word_wrap(document))
+#     print("\n")
 
 
 
