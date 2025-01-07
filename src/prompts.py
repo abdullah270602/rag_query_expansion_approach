@@ -38,7 +38,7 @@ Identify the core meaning of the query.
 
 Generate a diverse set of expanded queries following the above principles.
 
-Output the expanded queries in the specified format.
+Output the expanded queries in the specified format. Don't respond with other data other than the expanded queries. You'r response should be in the above given format.
 
 """
 
