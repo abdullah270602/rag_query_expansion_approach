@@ -2,18 +2,22 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     SentenceTransformersTokenTextSplitter,
 )
+from prompts import QUERY_EXPANSION_PROMPT, RESPONSE_PROMPT, USER_ORIGINAL_QUERY
 from utils import word_wrap, pretty_print
 from pypdf import PdfReader
 from dotenv import load_dotenv
 import os
-
+import groq
 import chromadb
 from chromadb.utils.embedding_functions.sentence_transformer_embedding_function import (
     SentenceTransformerEmbeddingFunction,
 )
 
+
+
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
+groq_client = groq.Client(api_key=API_KEY)
 
 print("Reading PDF file...")
 reader = PdfReader("data\FYP_Approved_Form.pdf")
@@ -61,12 +65,70 @@ count = chroma_collection.count()
 
 pretty_print("Total Documents", count)
 
-QUERY = "what are the expected results of the project?"
+# print("Querying the collection...")
+# results = chroma_collection.query(query_texts=[QUERY], n_results=3)
+# retrived_docs = results["documents"][0]
 
-print("Querying the collection...")
-results = chroma_collection.query(query_texts=[QUERY], n_results=2)
+# # for document in retrived_docs:
+# #     print(word_wrap(document))
+# #     print("\n")
+    
+    
+    
+def expand_query(query):
+    
+    chat = groq_client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": QUERY_EXPANSION_PROMPT
+                },
+                {
+                    "role": "user",
+                    "content": f"Original Query: {query}",
+                },
+            ],
+            model="llama-3.3-70b-versatile",
+            temperature = 0.7,
+    )
+    
+    return chat.choices[0].message.content
+
+expanded_query = expand_query(USER_ORIGINAL_QUERY)
+pretty_print("Expanded Query", expanded_query)
+
+print("Querying the collection with expanded query...")
+results = chroma_collection.query(query_texts=[expanded_query], n_results=3)
 retrived_docs = results["documents"][0]
+
+print("Retrieved Documents:",retrived_docs)
 
 for document in retrived_docs:
     print(word_wrap(document))
     print("\n")
+
+
+
+def response_to_original_query(user_query, retrieved_docs):
+    """
+    Generate a response to the original query using the retrieved documents as context.
+    """
+    context = "\n".join(retrieved_docs)
+    
+    prompt = RESPONSE_PROMPT.format(context=context, user_query=user_query)
+
+    
+    response = groq_client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that uses context to answer queries accurately."},
+            {"role": "user", "content": prompt},
+        ],
+        model="llama-3.3-70b-versatile",
+        temperature=0.5,
+    )
+    
+    return response.choices[0].message.content
+    
+    
+response = response_to_original_query(USER_ORIGINAL_QUERY, retrived_docs)
+pretty_print("Response", response)
