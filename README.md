@@ -2,6 +2,10 @@
 
 This project implements a Retrieval-Augmented Generation (RAG) approach for query expansion. The goal is to enhance the retrieval performance by expanding the queries using generated text.
 
+<div align="center" style="margin: 20px;">
+    <img src="image.png" alt="diagram" width="800"/>
+</div>
+
 ## Project Structure
 
 - `src/`: Contains the source code for the project.
