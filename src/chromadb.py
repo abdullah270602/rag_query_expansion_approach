@@ -19,7 +19,7 @@ def add_to_collection(collection,documents):
     return collection
 
 
-def retriveved_documents(collection,query,n_results=3):
+def retrieve_documents(collection,query,n_results=3):
     """ Query the collection with the query """
     results = collection.query(query_texts=[query], n_results=n_results)
     
