@@ -53,5 +53,3 @@ User Query:
 
 Your Response:
 """
-
-USER_ORIGINAL_QUERY = "what cloud platform will be used for the project?"
