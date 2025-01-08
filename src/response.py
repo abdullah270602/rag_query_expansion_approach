@@ -26,9 +26,8 @@ def response_to_original_query(client, user_query, retrieved_docs, model="llama-
     """
     Generate a response to the original query using the retrieved documents as context.
     """
-    context = "\n".join(retrieved_docs)
     
-    prompt = RESPONSE_PROMPT.format(context=context, user_query=user_query)
+    prompt = RESPONSE_PROMPT.format(context=retrieved_docs, user_query=user_query)
 
     
     response = client.chat.completions.create(
