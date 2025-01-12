@@ -1,4 +1,6 @@
 # helper_utils.py
+import os
+from pathlib import Path
 import numpy as np
 import chromadb
 import pandas as pd

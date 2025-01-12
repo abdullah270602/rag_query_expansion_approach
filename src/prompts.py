@@ -43,7 +43,10 @@ Output the expanded queries in the specified format. Don't respond with other da
 """
 
 RESPONSE_PROMPT = """
-You are a helpful assistant. Based on the following retrieved documents, respond to the user's query accurately and concisely:
+You are a helpful assistant. Based on the following retrieved documents, 
+respond to the user's query accurately and thoughtfully. 
+Your response should provide relevant information from the documents 
+to address the user's query effectively.:
 
 Retrieved Documents:
 {context}

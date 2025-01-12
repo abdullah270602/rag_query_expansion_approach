@@ -21,7 +21,7 @@ def add_to_collection(collection,tokens):
     return collection
 
 
-def retrieve_documents(collection,query,n_results=3):
+def retrieve_documents(collection,query,n_results=8):
     """ Query the collection with the query """
     results = collection.query(query_texts=[query], n_results=n_results)
     
